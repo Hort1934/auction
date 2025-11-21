@@ -74,7 +74,7 @@ def bid_page(request, auction_id):
             time_left, expired = remaining_time(auction[0])
             stats.append(time_left)  # First element in stats list
 
-            current_cost = 0.20 + (auction[0].number_of_bids * 0.20)
+            current_cost = 0.30 + (auction[0].number_of_bids * 0.20)
             current_cost = "%0.2f" % current_cost
             stats.append(current_cost)
 
