@@ -1,13 +1,17 @@
 body {
-    background-color: #351D0F !important;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    min-height: 100vh;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
 }
 .nav-header #left_navbar{
     margin: 0 !important;
 }
 .nav-header {
-    background-color: #8B6849;
-    border-radius: 0 0 30% 30%;
+    background: rgba(52, 58, 64, 0.95) !important;
+    border-radius: 0 0 25px 25px;
     padding: 20px 60px 30px 60px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 25px rgba(0,0,0,0.15);
 }
 #myCarousel .card-title, .card-text {
     height: auto !important;
@@ -83,10 +87,18 @@ body {
     padding: 0;
 }
 .main-products .p-2 #replacement  .container-fluid .carousel-item .card{
-   background-color: #8B6849;
-    padding: 30px;
-    border-radius: 30px;
+    background: rgba(255,255,255,0.95);
+    padding: 25px;
+    border-radius: 20px;
     height: 100%;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    backdrop-filter: blur(10px);
+}
+
+.main-products .p-2 #replacement  .container-fluid .carousel-item .card:hover{
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.2);
 }
 .main-products .p-2 #replacement  .container-fluid .carousel-item .card .card-body {
     padding: 0;
@@ -96,18 +108,23 @@ body {
     justify-content: end;
 }
 .main-products .p-2 #replacement  .container-fluid .carousel-item .card .card-body .like-btn{
-    padding: 0;
+    padding: 8px;
     border: none;
     position: absolute;
-    width: 30px;
-    height: 30px;
-    bottom: 0px;
-    right: 0px;
-    color: #CCBD7A;
+    width: 40px;
+    height: 40px;
+    bottom: 10px;
+    right: 10px;
+    background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+    border-radius: 50%;
+    color: white;
+    transition: all 0.3s ease;
+    box-shadow: 0 3px 15px rgba(238, 90, 82, 0.3);
 }
 .main-products .p-2 #replacement  .container-fluid .carousel-item .card .card-body .like-btn:hover {
-    background-color: transparent !important;
-
+    transform: scale(1.1);
+    box-shadow: 0 5px 20px rgba(238, 90, 82, 0.4);
+    background: linear-gradient(45deg, #ee5a52, #ff6b6b);
 }
 .main-products .p-2 #replacement  .container-fluid .carousel-item .card .card-body .like-btn:hover .svg-fill{
     color: #CCBD7A;
@@ -115,9 +132,10 @@ body {
 }
 
 .main-products .p-2 #replacement  .container-fluid .carousel-item .card .card-body .card-title {
-    color: white;
-    margin-bottom: 0;
-    font-size: 20px;
+    color: #2c3e50;
+    margin-bottom: 10px;
+    font-size: 18px;
+    font-weight: 600;
 }
 .main-products .p-2 #replacement  .container-fluid .carousel-item .card .card-body #item_name {
     display: flex;

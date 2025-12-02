@@ -6,8 +6,9 @@
 /*}*/
 body{
     min-height: 100vh;
-        background-color: #351D0F !important;
+    background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%) !important;
     color: white !important;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
 }
 body a.text-dark{
     color: white !important;
@@ -50,11 +51,19 @@ body a.text-dark:hover{
 }
 }
 .chat-btn {
-     color: white !important;
+    color: white !important;
     font-size: 16px !important;
-    border: 1px solid white !important;
-    border-radius: 15px !important;
-    padding: 7.5px 20px !important;
-    background-color: transparent !important;
+    background: linear-gradient(45deg, #3498db, #2980b9) !important;
+    border: none !important;
+    border-radius: 25px !important;
+    padding: 12px 24px !important;
     margin-bottom: 10px !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3) !important;
+}
+
+.chat-btn:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4) !important;
+    background: linear-gradient(45deg, #2980b9, #3498db) !important;
 }

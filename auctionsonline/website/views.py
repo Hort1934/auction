@@ -25,18 +25,26 @@ def index(request):
     auctions = Auction.objects.filter(time_ending__gte=datetime.now()).order_by('time_starting')
 
     try:
-        if request.session['username']:
-            user = User.objects.get(username=request.session['username'])
+        if 'username' in request.session and request.session['username']:
+            try:
+                user = User.objects.get(username=request.session['username'])
 
-            w = Watchlist.objects.filter(user_id=user)
-            watchlist = Auction.objects.none()
-            for item in w:
-                a = Auction.objects.filter(id=item.auction_id.id)
-                watchlist = list(chain(watchlist, a))
+                w = Watchlist.objects.filter(user_id=user)
+                watchlist = Auction.objects.none()
+                for item in w:
+                    a = Auction.objects.filter(id=item.auction_id.id)
+                    watchlist = list(chain(watchlist, a))
 
-            userDetails = UserDetails.objects.get(user_id=user.id)
-            return render(request, 'index.html',
-                          {'auctions': auctions, 'balance': userDetails.balance, 'watchlist': watchlist})
+                try:
+                    userDetails = UserDetails.objects.get(user_id=user.id)
+                    return render(request, 'index.html',
+                                  {'auctions': auctions, 'balance': userDetails.balance, 'watchlist': watchlist})
+                except UserDetails.DoesNotExist:
+                    return render(request, 'index.html', {'auctions': auctions, 'watchlist': watchlist})
+            except User.DoesNotExist:
+                # Clear invalid session
+                request.session.flush()
+                return render(request, 'index.html', {'auctions': auctions})
     except KeyError:
         return render(request, 'index.html', {'auctions': auctions})
 
