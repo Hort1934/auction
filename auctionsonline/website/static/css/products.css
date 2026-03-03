@@ -31,10 +31,35 @@
 {
     width: 100%; 
     margin-top: 10px;
+    background: linear-gradient(45deg, #28a745, #20c997) !important;
+    border: none !important;
+    border-radius: 25px !important;
+    padding: 10px 20px !important;
+    font-weight: 600 !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 3px 15px rgba(40, 167, 69, 0.3) !important;
+}
+
+.bid_now_button:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 5px 20px rgba(40, 167, 69, 0.4) !important;
 }
         
 .watch_button
 {
     width: 100%; 
     margin-top: 5px;
+    background: linear-gradient(45deg, #6f42c1, #e83e8c) !important;
+    border: none !important;
+    border-radius: 25px !important;
+    padding: 8px 16px !important;
+    color: white !important;
+    font-weight: 500 !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 3px 15px rgba(111, 66, 193, 0.3) !important;
+}
+
+.watch_button:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 5px 20px rgba(111, 66, 193, 0.4) !important;
 }

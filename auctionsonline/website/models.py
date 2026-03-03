@@ -13,8 +13,7 @@ class UserDetails(models.Model):
     country = models.CharField(max_length=45)
 
     def __str__(self):
-        user = User.objects.get(id=self.user_id)
-        return "id=" + str(self.pk) + " username=" + user.username + " email=" + user.email
+        return "id=" + str(self.pk) + " username=" + self.user_id.username + " email=" + self.user_id.email
 
 
 class Product(models.Model):
@@ -22,8 +21,6 @@ class Product(models.Model):
         ('BOK', 'Books'),
         ('TOY', 'Toys'),
         ('FIL', 'Films'),
-        # ('GAM', 'Game'),
-        # ('TEL', 'TV')
     )
 
     title = models.CharField(max_length=255)

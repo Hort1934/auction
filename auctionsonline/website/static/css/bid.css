@@ -1,6 +1,9 @@
 #preview_product {
     max-height: 500px;
     max-width: 500px;
+    width: 100%;
+    height: auto;
+    object-fit: contain;
     margin-top: 80px;
     margin-right: 40px;
 }

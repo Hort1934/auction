@@ -5,6 +5,7 @@ from django.utils import timezone
 from django.http import HttpResponseForbidden, HttpResponseBadRequest
 from datetime import datetime
 from itertools import chain
+from decimal import Decimal
 
 from website.forms import (
     AuctionForm, 
@@ -25,18 +26,26 @@ def index(request):
     auctions = Auction.objects.filter(time_ending__gte=datetime.now()).order_by('time_starting')
 
     try:
-        if request.session['username']:
-            user = User.objects.get(username=request.session['username'])
+        if 'username' in request.session and request.session['username']:
+            try:
+                user = User.objects.get(username=request.session['username'])
 
-            w = Watchlist.objects.filter(user_id=user)
-            watchlist = Auction.objects.none()
-            for item in w:
-                a = Auction.objects.filter(id=item.auction_id.id)
-                watchlist = list(chain(watchlist, a))
+                w = Watchlist.objects.filter(user_id=user)
+                watchlist = Auction.objects.none()
+                for item in w:
+                    a = Auction.objects.filter(id=item.auction_id.id)
+                    watchlist = list(chain(watchlist, a))
 
-            userDetails = UserDetails.objects.get(user_id=user.id)
-            return render(request, 'index.html',
-                          {'auctions': auctions, 'balance': userDetails.balance, 'watchlist': watchlist})
+                try:
+                    userDetails = UserDetails.objects.get(user_id=user.id)
+                    return render(request, 'index.html',
+                                  {'auctions': auctions, 'balance': userDetails.balance, 'watchlist': watchlist})
+                except UserDetails.DoesNotExist:
+                    return render(request, 'index.html', {'auctions': auctions, 'watchlist': watchlist})
+            except User.DoesNotExist:
+                # Clear invalid session
+                request.session.flush()
+                return render(request, 'index.html', {'auctions': auctions})
     except KeyError:
         return render(request, 'index.html', {'auctions': auctions})
 
@@ -68,13 +77,26 @@ def bid_page(request, auction_id):
             if auction[0].time_starting > timezone.now():
                 return index(request)
             user = User.objects.get(username=request.session['username'])
-            userDetails = UserDetails.objects.get(user_id=user.id)
-            balance = userDetails.balance
+            try:
+                userDetails = UserDetails.objects.get(user_id=user.id)
+                balance = userDetails.balance
+            except UserDetails.DoesNotExist:
+                # Create UserDetails if it doesn't exist
+                userDetails = UserDetails.objects.create(
+                    user_id=user,
+                    balance=100.00,  # Default balance
+                    cellphone="",
+                    address="",
+                    town="",
+                    post_code="",
+                    country=""
+                )
+                balance = userDetails.balance
             stats = []
             time_left, expired = remaining_time(auction[0])
             stats.append(time_left)  # First element in stats list
 
-            current_cost = 0.20 + (auction[0].number_of_bids * 0.20)
+            current_cost = 0.30 + (auction[0].number_of_bids * 0.20)
             current_cost = "%0.2f" % current_cost
             stats.append(current_cost)
 
@@ -85,15 +107,14 @@ def bid_page(request, auction_id):
                 stats.append(True)
 
             # Third element in stats list
-            latest_bid = Bid.objects.all().order_by('-bid_time')
+            latest_bid = Bid.objects.filter(auction_id=auction[0]).order_by('-bid_time').first()
             if latest_bid:
-                winner = User.objects.filter(id=latest_bid[0].user_id.id)
-                stats.append(winner[0].username)
+                stats.append(latest_bid.user_id.username)
             else:
-                stats.append(None)
+                stats.append(auction[0].owner.username)
 
             # Fourth element in stats list
-            chat = Chat.objects.all().order_by('time_sent')
+            chat = Chat.objects.filter(auction_id=auction[0]).order_by('time_sent')
             stats.append(chat)
 
             # Getting user's watchlist.
@@ -176,15 +197,32 @@ def raise_bid(request, auction_id):
     try:
         if request.session['username']:
             user = User.objects.get(username=request.session['username'])
-            userDetails = UserDetails.objects.get(user_id=user.id)
-            if userDetails.balance > 0.0:
-                latest_bid = Bid.objects.filter(auction_id=auction.id).order_by('-bid_time')
-                if not latest_bid:
-                    increase_bid(user, auction)
-                else:
-                    current_winner = User.objects.filter(id=latest_bid[0].user_id.id)
-                    if current_winner[0].id != user.id:
-                        increase_bid(user, auction)
+            try:
+                userDetails = UserDetails.objects.get(user_id=user.id)
+            except UserDetails.DoesNotExist:
+                # Create UserDetails if it doesn't exist
+                userDetails = UserDetails.objects.create(
+                    user_id=user,
+                    balance=100.00,  # Default balance
+                    cellphone="",
+                    address="",
+                    town="",
+                    post_code="",
+                    country=""
+                )
+            if userDetails.balance >= Decimal('0.30'):
+                # Calculate current bid cost
+                current_bid_cost = Decimal('0.30') + (Decimal('0.20') * auction.number_of_bids)
+                
+                # Check if user has enough balance for current bid
+                if userDetails.balance >= current_bid_cost:
+                    latest_bid = Bid.objects.filter(auction_id=auction.id).order_by('-bid_time')
+                    if not latest_bid:
+                        increase_bid(user, auction, current_bid_cost)
+                    else:
+                        current_winner = User.objects.filter(id=latest_bid[0].user_id.id)
+                        if current_winner[0].id != user.id:
+                            increase_bid(user, auction, current_bid_cost)
 
             return bid_page(request, auction_id)
     except KeyError:
@@ -259,7 +297,19 @@ def watchlist_page(request):
                 auctions = list(chain(auctions, a))
 
             # Get the balance for the user
-            userDetails = UserDetails.objects.get(user_id=user[0].id)
+            try:
+                userDetails = UserDetails.objects.get(user_id=user[0].id)
+            except UserDetails.DoesNotExist:
+                # Create UserDetails if it doesn't exist
+                userDetails = UserDetails.objects.create(
+                    user_id=user[0],
+                    balance=100.00,  # Default balance
+                    cellphone="",
+                    address="",
+                    town="",
+                    post_code="",
+                    country=""
+                )
 
             return render(request, 'index.html', {
                 'auctions': auctions,
@@ -288,7 +338,19 @@ def balance(request):
     try:
         if request.session['username']:
             user = User.objects.get(username=request.session['username'])
-            userDetails = UserDetails.objects.get(user_id=user.id)
+            try:
+                userDetails = UserDetails.objects.get(user_id=user.id)
+            except UserDetails.DoesNotExist:
+                # Create UserDetails if it doesn't exist
+                userDetails = UserDetails.objects.create(
+                    user_id=user,
+                    balance=100.00,  # Default balance
+                    cellphone="",
+                    address="",
+                    town="",
+                    post_code="",
+                    country=""
+                )
             return render(request, 'balance.html', {'user': user, 'balance': userDetails.balance})
     except KeyError:
         return index(request)
@@ -311,7 +373,19 @@ def topup(request):
             try:
                 if request.session['username']:
                     user = User.objects.get(username=request.session['username'])
-                    userDetails = UserDetails.objects.get(user_id=user.id)
+                    try:
+                        userDetails = UserDetails.objects.get(user_id=user.id)
+                    except UserDetails.DoesNotExist:
+                        # Create UserDetails if it doesn't exist
+                        userDetails = UserDetails.objects.create(
+                            user_id=user,
+                            balance=100.00,  # Default balance
+                            cellphone="",
+                            address="",
+                            town="",
+                            post_code="",
+                            country=""
+                        )
                     userDetails.balance += form.cleaned_data['amount']
                     userDetails.save()
             except KeyError:
@@ -373,7 +447,19 @@ def filter_auctions(request, category):
                 watchlist = list(chain(watchlist, a))
 
             # Get the balance for the user
-            userDetails = UserDetails.objects.get(user_id=user.id)
+            try:
+                userDetails = UserDetails.objects.get(user_id=user.id)
+            except UserDetails.DoesNotExist:
+                # Create UserDetails if it doesn't exist
+                userDetails = UserDetails.objects.create(
+                    user_id=user,
+                    balance=100.00,  # Default balance
+                    cellphone="",
+                    address="",
+                    town="",
+                    post_code="",
+                    country=""
+                )
 
             return render(request, 'index.html', {'auctions': f_auctions, 'user': user, 'balance': userDetails.balance,
                                                   'watchlist': watchlist})
@@ -556,21 +642,40 @@ def create_auction(request):
 
 def all_user_auction(request):
     """
-    Retrieve all auctions owned by the current user.
+    Retrieve all auctions owned by the current user and auctions won by the user.
 
     This function fetches all Auction objects from the database where the
-    owner field matches the current user. It then renders the 'my_auctions.html'
-    template with the retrieved auctions.
+    owner field matches the current user, as well as auctions that have ended
+    where the user placed the winning bid.
 
     Args:
         request (HttpRequest): The Django request object.
 
     Returns:
         HttpResponse: The rendered 'my_auctions.html' template with the
-                      user's auctions.
+                      user's auctions (owned and won).
     """
-    user_auctions = Auction.objects.filter(owner=request.session['user_id'])
-    return render(request, 'auctions_panel/my_auctions.html', {'user_auctions': user_auctions})
+    user_id = request.session['user_id']
+    
+    # Get auctions created by the user
+    owned_auctions = Auction.objects.filter(owner=user_id)
+    
+    # Get auctions won by the user (ended auctions where user has the last bid)
+    now = timezone.now()
+    ended_auctions = Auction.objects.filter(time_ending__lt=now)
+    
+    won_auctions = []
+    for auction in ended_auctions:
+        # Get the last bid for this auction
+        last_bid = Bid.objects.filter(auction_id=auction.id).order_by('-bid_time').first()
+        if last_bid and last_bid.user_id.id == user_id:
+            won_auctions.append(auction)
+    
+    return render(request, 'auctions_panel/my_auctions.html', {
+        'owned_auctions': owned_auctions,
+        'won_auctions': won_auctions,
+        'now': now
+    })
 
 @session_check
 def create_product(request):

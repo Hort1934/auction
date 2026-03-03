@@ -5,20 +5,22 @@ from datetime import datetime, timedelta
 from decimal import Decimal
 
 
-def increase_bid(user, auction):
+def increase_bid(user, auction, bid_cost):
     """
-    Removes €1.0 from user.
+    Removes the current bid cost from user.
     Creates a Bid record
     Increases the auction's number of bids
 
     Parameters
     ----------
+    user : User object
     auction : class 'website.models.Auction'
+    bid_cost : Decimal - current cost of the bid
     """
     # Fetch the UserDetails associated with the user
     userDetails = UserDetails.objects.get(user_id=user.id)
-    # Deduct 1.0 from the user's balance
-    userDetails.balance -= Decimal('1.0')  # Use Decimal object for consistency
+    # Deduct the current bid cost from the user's balance
+    userDetails.balance -= bid_cost
     userDetails.save()  # Save the updated balance to the database
 
     # Create a new Bid record
