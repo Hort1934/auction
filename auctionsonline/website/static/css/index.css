@@ -2,6 +2,9 @@ body {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
     min-height: 100vh;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+    color: #333 !important;
+    display: flex;
+    flex-direction: column;
 }
 .nav-header #left_navbar{
     margin: 0 !important;
@@ -40,8 +43,9 @@ body {
     margin-top: 10px;
 }
 .nav-header .nav-mid a{
- color: white;
-    font-size: 16px;
+    color: white !important;
+    font-size: 16px !important;
+    text-decoration: none !important;
 }
 .nav-header .nav-start {
     display: flex;
@@ -49,12 +53,18 @@ body {
     justify-content: start;
 }
 .nav-header .nav-end a{
-    color: white;
-    font-size: 16px;
+    color: white !important;
+    font-size: 16px !important;
     border: 1px solid white;
     border-radius: 15px;
     margin: 0 5px;
     padding: 5px 10px !important;
+    text-decoration: none !important;
+}
+
+.nav-header .nav-end a:hover{
+    background-color: rgba(255,255,255,0.1) !important;
+    color: white !important;
 }
 
         
@@ -72,6 +82,7 @@ body {
 .main-products {
     width: 100%;
     padding: 40px 60px;
+    flex: 1;
 }
 .main-products .p-2{
     width: 100%;
@@ -101,11 +112,23 @@ body {
     box-shadow: 0 15px 40px rgba(0,0,0,0.2);
 }
 .main-products .p-2 #replacement  .container-fluid .carousel-item .card .card-body {
-    padding: 0;
+    padding: 15px;
     position: relative;
     display: flex;
     flex-direction: column;
     justify-content: end;
+    color: #333 !important;
+}
+
+.main-products .p-2 #replacement  .container-fluid .carousel-item .card .card-title {
+    color: #333 !important;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.main-products .p-2 #replacement  .container-fluid .carousel-item .card .card-text {
+    color: #666 !important;
+    margin-bottom: 15px;
 }
 .main-products .p-2 #replacement  .container-fluid .carousel-item .card .card-body .like-btn{
     padding: 8px;
@@ -420,15 +443,15 @@ body {
 .product-single #preview_product {
     width: 100% !important;
 }
-/*.product-single #comments {*/
-/*    width: 100%;*/
-/*}*/
+.product-single #comments {
+    width: 100%;
+}
 #comments {
-    width: 538px;
-
+    width: 100%;
+    max-width: 538px;
 }
 .balance-text{
-    color: white;
+    color: rgb(0, 0, 0);
 }
 .balance-btn{
          color: white;
