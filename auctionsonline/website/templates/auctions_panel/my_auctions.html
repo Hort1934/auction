@@ -12,14 +12,39 @@
   </head>
   <body>
     <div class="container">
-      <h2 class="mt-5">All Auctions</h2>
-      <ul>
-        {% for product in user_auctions %}
-        <p>{{ product.title }}</p>
+      <h2 class="mt-5">My Auctions</h2>
+      
+      <h3 class="mt-4">Auctions I Created</h3>
+      <ul class="list-group mb-4">
+        {% for auction in owned_auctions %}
+        <li class="list-group-item">
+          <a href="/website/bid/{{ auction.id }}/">{{ auction.product_id.title }}</a>
+          <span class="badge badge-primary">{{ auction.number_of_bids }} bids</span>
+          {% if auction.time_ending > now %}
+            <span class="badge badge-success">Active</span>
+          {% else %}
+            <span class="badge badge-secondary">Ended</span>
+          {% endif %}
+        </li>
         {% empty %}
-        <p>No auctions found.</p>
+        <li class="list-group-item">No auctions created yet.</li>
         {% endfor %}
       </ul>
+      
+      <h3 class="mt-4">Auctions I Won</h3>
+      <ul class="list-group mb-4">
+        {% for auction in won_auctions %}
+        <li class="list-group-item">
+          <a href="/website/bid/{{ auction.id }}/">{{ auction.product_id.title }}</a>
+          <span class="badge badge-success">Won</span>
+          <span class="badge badge-primary">{{ auction.number_of_bids }} bids</span>
+        </li>
+        {% empty %}
+        <li class="list-group-item">No auctions won yet.</li>
+        {% endfor %}
+      </ul>
+      
+      <a href="/website/auctions_dashboard/" class="btn btn-primary">Back to Dashboard</a>
     </div>
   </body>
 </html>
