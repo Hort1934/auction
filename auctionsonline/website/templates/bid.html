@@ -20,12 +20,25 @@
             return;
         }
         
+        // Calculate days, hours, minutes, seconds
+        const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
         const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
         
+        // Format display based on time remaining
+        let displayText = '';
+        if (days > 0) {
+            displayText = days + "d " + hours + "h " + minutes + "m";
+        } else if (hours > 0) {
+            displayText = hours + "h " + minutes + "m " + seconds + "s";
+        } else {
+            displayText = minutes + "m " + seconds + "s";
+        }
+        
         const timerElement = document.getElementById('timer-display');
         if (timerElement) {
-            timerElement.textContent = minutes + "m " + seconds + "s";
+            timerElement.textContent = displayText;
         }
     }
     
@@ -57,8 +70,12 @@
                             {% endif %}
                         </tr>
                         <tr>
-                            <td><small>Current bit:</small></td>
-                            <td><b>EU {{stats.1}}€</b></td>
+                            <td><small>Starting price:</small></td>
+                            <td><b>€{{ auction.starting_price }}</b></td>
+                        </tr>
+                        <tr>
+                            <td><small>Next bid price:</small></td>
+                            <td><b>€{{stats.1}}</b></td>
                             <td><small>[ {{ auction.number_of_bids }} bids ]</small></td>
                         </tr>
                     </tbody>

@@ -96,7 +96,8 @@ def bid_page(request, auction_id):
             time_left, expired = remaining_time(auction[0])
             stats.append(time_left)  # First element in stats list
 
-            current_cost = 0.30 + (auction[0].number_of_bids * 0.20)
+            # Calculate NEXT bid price (what the next bidder will pay)
+            current_cost = float(auction[0].starting_price) + (auction[0].number_of_bids * 0.20)
             current_cost = "%0.2f" % current_cost
             stats.append(current_cost)
 
@@ -210,9 +211,9 @@ def raise_bid(request, auction_id):
                     post_code="",
                     country=""
                 )
-            if userDetails.balance >= Decimal('0.30'):
-                # Calculate current bid cost
-                current_bid_cost = Decimal('0.30') + (Decimal('0.20') * auction.number_of_bids)
+            if userDetails.balance >= auction.starting_price:
+                # Calculate current bid cost (starting price + increments)
+                current_bid_cost = auction.starting_price + (Decimal('0.20') * auction.number_of_bids)
                 
                 # Check if user has enough balance for current bid
                 if userDetails.balance >= current_bid_cost:
