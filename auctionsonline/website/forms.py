@@ -38,4 +38,4 @@ class ProductForm(forms.ModelForm):
 class AuctionForm(forms.ModelForm):
     class Meta:
         model = Auction
-        fields = ['product_id', 'number_of_bids', 'time_starting', 'time_ending']
+        fields = ['product_id', 'number_of_bids', 'starting_price', 'time_starting', 'time_ending']
