@@ -42,6 +42,7 @@ class Auction(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE, default=None)
     product_id = models.ForeignKey(Product, on_delete=models.CASCADE)
     number_of_bids = models.IntegerField()
+    starting_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.30)
     time_starting = models.DateTimeField()
     time_ending = models.DateTimeField()
 
