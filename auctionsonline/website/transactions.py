@@ -1,6 +1,6 @@
 from website.models import UserDetails, Auction, Bid
 from django.utils import timezone
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from decimal import Decimal
 
@@ -28,7 +28,6 @@ def increase_bid(user, auction, bid_cost):
 
     # Increase the auction's number of bids
     auction.number_of_bids += 1
-    auction.time_ending = timezone.now() + timedelta(minutes=5)
     auction.save()
 
 
@@ -47,17 +46,25 @@ def remaining_time(auction):
     
     time_left : str
         string representation of remaining time in
-        minutes and seconds.
+        days, hours, minutes and seconds.
     expired : int
         if the value is less than zero then the auction ended.
     
     """
     time_left = auction.time_ending - timezone.now()
     days, seconds = time_left.days, time_left.seconds
-    hours = days * 24 + seconds // 3600
+    hours = seconds // 3600
     minutes = (seconds % 3600) // 60
     seconds = seconds % 60
-    time_left = str(minutes) + "m " + str(seconds) + "s"
+    
+    # Format time string based on remaining time
+    if days > 0:
+        time_left = f"{days}d {hours}h {minutes}m"
+    elif hours > 0:
+        time_left = f"{hours}h {minutes}m {seconds}s"
+    else:
+        time_left = f"{minutes}m {seconds}s"
+    
     expired = days
 
     return time_left, expired
